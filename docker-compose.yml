@@ -8,8 +8,8 @@ services:
     depends_on:
       - hso-logistics-db
     ports:
-      - "8019:8069"
-      - "8020:8072"
+      - "8054:8069"
+      - "8055:8072"
     volumes:
       - hso-logistics-data:/var/lib/odoo
       - ./config:/etc/odoo

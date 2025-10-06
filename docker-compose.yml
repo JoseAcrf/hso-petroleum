@@ -8,20 +8,20 @@ services:
     depends_on:
       - hso-logistics-db
     ports:
-      - "${ODOO_PORT_WEB}:8069"         # Puerto web externo
-      - "${ODOO_PORT_LONGPOLL}:8072"    # Puerto longpolling externo
+      - "8019:8069"
+      - "8020:8072"
     volumes:
       - hso-logistics-data:/var/lib/odoo
-      - ./config:/etc/odoo              # Configuración específica de esta instancia
-      - ./addons:/mnt/extra-addons      # Módulos personalizados
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
     environment:
       - HOST=hso-logistics-db
       - USER=odoo
-      - PASSWORD=${ODOO_DB_PASSWORD}
+      - PASSWORD=odoo
     command: >
       odoo
       --db_host=hso-logistics-db --db_port=5432
-      --db_user=odoo --db_password=${ODOO_DB_PASSWORD}
+      --db_user=odoo --db_password=odoo
       --db-filter=.*
       --logfile=/var/log/odoo/odoo.log
     healthcheck:
@@ -36,9 +36,9 @@ services:
     container_name: hso-logistics_db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=${ODOO_DB_NAME}
+      - POSTGRES_DB=postgres
       - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD}
+      - POSTGRES_PASSWORD=odoo
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - hso-logistics-pgdata:/var/lib/postgresql/data

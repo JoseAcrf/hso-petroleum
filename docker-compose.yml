@@ -12,7 +12,7 @@ services:
       - "8056:8072"   # puerto longpolling único
     volumes:
       - odoo-data-2:/var/lib/odoo
-      - ./config:/etc/odoo              # configuración específica de esta instancia
+      - ./odoo.conf:/etc/odoo/odoo.conf              # configuración específica de esta instancia
       - ./addons:/mnt/extra-addons      # módulos personalizados
     environment:
       - HOST=logisticdb

@@ -3,7 +3,7 @@ version: "3.1"
 services:
   hso-web:
     image: odoo:19.0
-    container_name: hso_lubricant
+    container_name: hso_logistic
     restart: unless-stopped
     depends_on:
       - hsodb
@@ -15,7 +15,7 @@ services:
       - ./config:/etc/odoo              # configuración específica de esta instancia
       - ./addons:/mnt/extra-addons      # módulos personalizados
     environment:
-      - HOST=hsodb
+      - HOST=logisticdb
       - USER=odoo
       - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
     command: >
@@ -27,7 +27,7 @@ services:
 
   hsodb:
     image: postgres:16.0
-    container_name: lubricantdb
+    container_name: logisticdb
     restart: unless-stopped
     environment:
       - POSTGRES_DB=postgres             # evita conflicto si ya existe "odoo"

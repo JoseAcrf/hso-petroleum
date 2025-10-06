@@ -1,42 +1,54 @@
 version: "3.1"
 
 services:
-  hso-web:
+  ${INSTANCE_ID}-web:
     image: odoo:19.0
-    container_name: hso_web
+    container_name: ${INSTANCE_ID}_web
     restart: unless-stopped
     depends_on:
-      - hsodb
+      - ${INSTANCE_ID}-db
     ports:
-      - "8019:8069"   # puerto web
-      - "8020:8072"   # opcional: longpolling, para notificaciones/chat
+      - "${ODOO_PORT_WEB}:8069"
+      - "${ODOO_PORT_LONGPOLL}:8072"
     volumes:
-      - odoo-data-2:/var/lib/odoo
-      - ./config2:/etc/odoo              # opcional: odoo.conf propio
-      - ./addons2:/mnt/extra-addons      # módulos propios de esta instancia
+      - ${INSTANCE_ID}-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
     environment:
-      - HOST=hsodb
+      - HOST=${INSTANCE_ID}-db
       - USER=odoo
-      - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+      - PASSWORD=${ODOO_DB_PASSWORD}
     command: >
       odoo
-      --db_host=hsodb --db_port=5432
-      --db_user=odoo --db_password=${ODOO_DB_PASSWORD:-odoo}
+      --db_host=${INSTANCE_ID}-db --db_port=5432
+      --db_user=odoo --db_password=${ODOO_DB_PASSWORD}
       --db-filter=.*
       --logfile=/var/log/odoo/odoo.log
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8069 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
-  hsodb:
+  ${INSTANCE_ID}-db:
     image: postgres:16.0
-    container_name: hsodb2
+    container_name: ${INSTANCE_ID}_db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=postgres             # evita pre-crear una BD "odoo" vacía
+      - POSTGRES_DB=${ODOO_DB_NAME}
       - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD}
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - db-data-2:/var/lib/postgresql/data
+      - ${INSTANCE_ID}-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
 volumes:
-  odoo-data-2:
-  db-data-2:
+  ${INSTANCE_ID}-data:
+  ${INSTANCE_ID}-pgdata:

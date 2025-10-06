@@ -3,7 +3,7 @@ version: "3.1"
 services:
   hso-web:
     image: odoo:19.0
-    container_name: hso_web
+    container_name: hso_lubricant
     restart: unless-stopped
     depends_on:
       - hsodb
@@ -27,7 +27,7 @@ services:
 
   hsodb:
     image: postgres:16.0
-    container_name: hsodb2
+    container_name: lubricantdb
     restart: unless-stopped
     environment:
       - POSTGRES_DB=postgres             # evita conflicto si ya existe "odoo"

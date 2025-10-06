@@ -1,0 +1,112 @@
+<odoo>
+    <!-- List View -->
+    <record id="view_credencial_list_v2" model="ir.ui.view">
+        <field name="name">credencial.gestion.v2.list</field>
+        <field name="model">credencial.gestion.v2</field>
+        <field name="arch" type="xml">
+            <list string="Credenciales V2"
+                  decoration-bf="status=='inactivo'"
+                  decoration-danger="status=='por_confirmar'">
+                <field name="nombre"/>
+                <field name="service_type"/>
+                <field name="email"/>
+                <field name="usuario"/>
+                <field name="status"/>
+                <field name="fecha_expiracion"/>
+                <field name="departamento"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_credencial_form_v2" model="ir.ui.view">
+        <field name="name">credencial.gestion.v2.form</field>
+        <field name="model">credencial.gestion.v2</field>
+        <field name="arch" type="xml">
+            <form string="Gestión de Credenciales V2">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="nombre"/>
+                            <field name="service_type"/>
+                            <field name="link"/>
+                            <field name="email"/>
+                            <field name="usuario"/>
+                            <field name="clave_acceso" password="True"/>
+                            <field name="costo"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="departamento"/>
+                            <field name="status"/>
+                            <field name="ciclo_pago"/>
+                            <field name="fecha_expiracion"/>
+                            <field name="activo"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Descripción">
+                            <field name="descripcion"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_credencial_kanban_v2" model="ir.ui.view">
+        <field name="name">credencial.gestion.v2.kanban</field>
+        <field name="model">credencial.gestion.v2</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <strong><field name="nombre"/></strong>
+                            <div><field name="departamento"/></div>
+                            <div>Status: <field name="status"/></div>
+                            <div>Expira: <field name="fecha_expiracion"/></div>
+                            <a t-att-href="record.link.raw_value" target="_blank">Abrir Link</a>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View (mínimo para evitar errores) -->
+    <record id="view_credencial_search_v2" model="ir.ui.view">
+        <field name="name">credencial.gestion.v2.search</field>
+        <field name="model">credencial.gestion.v2</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nombre"/>
+                <filter string="Activos" domain="[('status','=','activo')]"/>
+                <filter string="Inactivos" domain="[('status','=','inactivo')]"/>
+                <filter string="Por Confirmar" domain="[('status','=','por_confirmar')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_credencial_v2" model="ir.actions.act_window">
+        <field name="name">Credenciales V2</field>
+        <field name="res_model">credencial.gestion.v2</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_credencial_search_v2"/>
+    </record>
+
+    <!-- Menú raíz como aplicación -->
+    <menuitem id="menu_credencial_root_v2"
+              name="Credenciales V2"
+              sequence="10"
+              web_icon="credential_management_v2,static/description/icon.svg"/>
+
+    <!-- Submenú -->
+    <menuitem id="menu_credencial_items_v2"
+              name="Gestión"
+              parent="menu_credencial_root_v2"
+              action="action_credencial_v2"
+              sequence="1"/>
+</odoo>

@@ -1,0 +1,42 @@
+version: "3.1"
+
+services:
+  hso-web:
+    image: odoo:19.0
+    container_name: hso_web
+    restart: unless-stopped
+    depends_on:
+      - hsodb
+    ports:
+      - "8019:8069"   # puerto web
+      - "8020:8072"   # opcional: longpolling, para notificaciones/chat
+    volumes:
+      - odoo-data-2:/var/lib/odoo
+      - ./config2:/etc/odoo              # opcional: odoo.conf propio
+      - ./addons2:/mnt/extra-addons      # módulos propios de esta instancia
+    environment:
+      - HOST=hsodb
+      - USER=odoo
+      - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+    command: >
+      odoo
+      --db_host=hsodb --db_port=5432
+      --db_user=odoo --db_password=${ODOO_DB_PASSWORD:-odoo}
+      --db-filter=.*
+      --logfile=/var/log/odoo/odoo.log
+
+  hsodb:
+    image: postgres:16.0
+    container_name: hsodb2
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=postgres             # evita pre-crear una BD "odoo" vacía
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db-data-2:/var/lib/postgresql/data
+
+volumes:
+  odoo-data-2:
+  db-data-2:

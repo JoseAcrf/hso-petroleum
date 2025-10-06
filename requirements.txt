@@ -1,0 +1,14 @@
+psycopg2-binary
+pillow
+reportlab
+python-dateutil
+werkzeug
+PyPDF2
+lxml
+passlib
+babel
+chardet
+cryptography
+decorator
+docutils
+Jinja2

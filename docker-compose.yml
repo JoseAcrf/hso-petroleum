@@ -1,55 +1,42 @@
 version: "3.1"
 
 services:
-  hso-logistics-web:
+  hso-web:
     image: odoo:19.0
-    container_name: hso-logistics_web
+    container_name: hso_web
     restart: unless-stopped
     depends_on:
-      - hso-logistics-db
+      - hsodb
     ports:
-      - "8054:8069"  # Puerto web externo
-      - "8055:8072"  # Puerto longpolling externo
+      - "8019:8069"   # puerto web único
+      - "8020:8072"   # puerto longpolling único
     volumes:
-      - hso-logistics-data:/var/lib/odoo
-      - ./config:/etc/odoo              # Debe contener odoo.conf
-      - ./addons:/mnt/extra-addons      # Módulos personalizados
+      - odoo-data-2:/var/lib/odoo
+      - ./config2:/etc/odoo              # configuración específica de esta instancia
+      - ./addons2:/mnt/extra-addons      # módulos personalizados
     environment:
-      - HOST=hso-logistics-db
+      - HOST=hsodb
       - USER=odoo
-      - PASSWORD=odoo
+      - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
     command: >
       odoo
-      --db_host=hso-logistics-db --db_port=5432
-      --db_user=odoo --db_password=odoo
-      --db-filter=odoo
+      --db_host=hsodb --db_port=5432
+      --db_user=odoo --db_password=${ODOO_DB_PASSWORD:-odoo}
+      --db-filter=.*
       --logfile=/var/log/odoo/odoo.log
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8069 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
 
-  hso-logistics-db:
+  hsodb:
     image: postgres:16.0
-    container_name: hso-logistics_db
+    container_name: hsodb2
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=odoo                 # ✅ Crea automáticamente la base "odoo"
+      - POSTGRES_DB=postgres             # evita conflicto si ya existe "odoo"
       - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD:-odoo}
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - hso-logistics-pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U odoo"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
+      - db-data-2:/var/lib/postgresql/data
 
 volumes:
-  hso-logistics-data:
-  hso-logistics-pgdata:
-
+  odoo-data-2:
+  db-data-2:

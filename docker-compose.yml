@@ -8,8 +8,8 @@ services:
     depends_on:
       - ${INSTANCE_ID}-db
     ports:
-      - "${ODOO_PORT_WEB}:8069"
-      - "${ODOO_PORT_LONGPOLL}:8072"
+      - "${ODOO_PORT_WEB}:8254"
+      - "${ODOO_PORT_LONGPOLL}:88255"
     volumes:
       - ${INSTANCE_ID}-data:/var/lib/odoo
       - ./config:/etc/odoo

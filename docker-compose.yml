@@ -9,7 +9,7 @@ services:
       - hsodb
     ports:
       - "8055:8069"   # puerto web único
-      - "8020:8072"   # puerto longpolling único
+      - "8056:8072"   # puerto longpolling único
     volumes:
       - odoo-data-2:/var/lib/odoo
       - ./config:/etc/odoo              # configuración específica de esta instancia

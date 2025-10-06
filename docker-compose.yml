@@ -22,7 +22,7 @@ services:
       odoo
       --db_host=hso-logistics-db --db_port=5432
       --db_user=odoo --db_password=odoo
-      --db-filter=.*
+      --db-filter=odoo
       --logfile=/var/log/odoo/odoo.log
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8069 || exit 1"]

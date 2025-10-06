@@ -1,26 +1,26 @@
 version: "3.1"
 
 services:
-  ${INSTANCE_ID}-web:
+  hso-logistics-web:
     image: odoo:19.0
-    container_name: ${INSTANCE_ID}_web
+    container_name: hso-logistics_web
     restart: unless-stopped
     depends_on:
-      - ${INSTANCE_ID}-db
+      - hso-logistics-db
     ports:
-      - "${ODOO_PORT_WEB}:8254"
-      - "${ODOO_PORT_LONGPOLL}:88255"
+      - "${ODOO_PORT_WEB}:8069"         # Puerto web externo
+      - "${ODOO_PORT_LONGPOLL}:8072"    # Puerto longpolling externo
     volumes:
-      - ${INSTANCE_ID}-data:/var/lib/odoo
-      - ./config:/etc/odoo
-      - ./addons:/mnt/extra-addons
+      - hso-logistics-data:/var/lib/odoo
+      - ./config:/etc/odoo              # Configuración específica de esta instancia
+      - ./addons:/mnt/extra-addons      # Módulos personalizados
     environment:
-      - HOST=${INSTANCE_ID}-db
+      - HOST=hso-logistics-db
       - USER=odoo
       - PASSWORD=${ODOO_DB_PASSWORD}
     command: >
       odoo
-      --db_host=${INSTANCE_ID}-db --db_port=5432
+      --db_host=hso-logistics-db --db_port=5432
       --db_user=odoo --db_password=${ODOO_DB_PASSWORD}
       --db-filter=.*
       --logfile=/var/log/odoo/odoo.log
@@ -31,9 +31,9 @@ services:
       retries: 5
       start_period: 20s
 
-  ${INSTANCE_ID}-db:
+  hso-logistics-db:
     image: postgres:16.0
-    container_name: ${INSTANCE_ID}_db
+    container_name: hso-logistics_db
     restart: unless-stopped
     environment:
       - POSTGRES_DB=${ODOO_DB_NAME}
@@ -41,7 +41,7 @@ services:
       - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD}
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - ${INSTANCE_ID}-pgdata:/var/lib/postgresql/data
+      - hso-logistics-pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U odoo"]
       interval: 30s
@@ -50,5 +50,5 @@ services:
       start_period: 20s
 
 volumes:
-  ${INSTANCE_ID}-data:
-  ${INSTANCE_ID}-pgdata:
+  hso-logistics-data:
+  hso-logistics-pgdata:

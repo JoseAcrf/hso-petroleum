@@ -8,8 +8,8 @@ services:
     depends_on:
       - hsodb
     ports:
-      - "8080:8072"
-      - "8090:8069"
+      - "8080:8069"
+      - "8090:8072"
     volumes:
       - odoo-data-2:/var/lib/odoo
       - /opt/odoo/hso-petroleum/config2:/etc/odoo

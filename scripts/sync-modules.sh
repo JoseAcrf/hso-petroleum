@@ -1,8 +1,8 @@
 #!/bin/bash
 
-REPO_PATH="/opt/odoo/hso-logistics"
+REPO_PATH="/opt/odoo/hso-petroleum"
 MODULE_PATH="$REPO_PATH/addonsv2/mt/extra-addons"
-CONTAINER_NAME="hso_logistic"
+CONTAINER_NAME="hso_petroleum"
 
 echo "🔄 Sincronizando repositorio desde GitHub..."
 cd "$REPO_PATH" || exit 1

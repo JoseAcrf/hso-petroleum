@@ -5,9 +5,9 @@ set -e
 : ${HOST:=${DB_PORT_5432_TCP_ADDR:='petroleumdb'}}
 : ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
 : ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
-: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo072025'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo19@2024'}}}
 
-# 🧠 Crear usuario odoo si no existe
+# 🔐 Crear usuario odoo si no existe
 if ! id -u odoo >/dev/null 2>&1; then
     useradd -m -d /var/lib/odoo -s /bin/bash odoo
 fi
@@ -15,19 +15,7 @@ fi
 # 🔐 Corregir permisos para evitar errores de escritura
 chown -R odoo:odoo /var/lib/odoo
 
-# 📦 Instalar dependencias Python (forzando entorno gestionado)
-pip install --break-system-packages -r /etc/odoo/requirements.txt || echo "⚠️ pip install falló, pero el entorno puede estar preinstalado."
-
-# 🔁 Instalar logrotate si no está presente
-if ! dpkg -l | grep -q logrotate; then
-    apt-get update && apt-get install -y logrotate
-fi
-
-# 📁 Configurar logrotate
-cp /etc/odoo/logrotate /etc/logrotate.d/odoo
-cron
-
-# 🧠 Construir argumentos de conexión a PostgreSQL
+# 🧠 Construir argumentos de conexión a PostgreSQL desde odoo.conf
 DB_ARGS=()
 function check_config() {
     param="$1"
@@ -56,20 +44,4 @@ else
 fi
 
 # 🚀 Lanzar Odoo como usuario correcto
-case "$1" in
-    -- | odoo)
-        shift
-        if [[ "$1" == "scaffold" ]] ; then
-            exec su -s /bin/bash odoo -c "odoo $*"
-        else
-            su -s /bin/bash odoo -c "wait-for-psql.py ${DB_ARGS[@]} --timeout=30 && odoo $* ${DB_ARGS[@]}"
-        fi
-        ;;
-    -*)
-        su -s /bin/bash odoo -c "wait-for-psql.py ${DB_ARGS[@]} --timeout=30 && odoo $* ${DB_ARGS[@]}"
-        ;;
-    *)
-        exec "$@"
-esac
-
-exit 
+exec su -s /bin/bash odoo -c "odoo ${DB_ARGS[@]}"

@@ -5,10 +5,18 @@ set -e
 : ${HOST:=${DB_PORT_5432_TCP_ADDR:='petroleumdb'}}
 : ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
 : ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
-: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo19@2024'}}}
 
-# 📦 Instalar dependencias Python
-pip3 install -r /etc/odoo/requirements.txt
+# 🧠 Crear usuario odoo si no existe
+if ! id -u odoo >/dev/null 2>&1; then
+    useradd -m -d /var/lib/odoo -s /bin/bash odoo
+fi
+
+# 🔐 Corregir permisos para evitar errores de escritura
+chown -R odoo:odoo /var/lib/odoo
+
+# 📦 Instalar dependencias Python (forzando entorno gestionado)
+pip install --break-system-packages -r /etc/odoo/requirements.txt || echo "⚠️ pip install falló, pero el entorno puede estar preinstalado."
 
 # 🔁 Instalar logrotate si no está presente
 if ! dpkg -l | grep -q logrotate; then
@@ -18,9 +26,6 @@ fi
 # 📁 Configurar logrotate
 cp /etc/odoo/logrotate /etc/logrotate.d/odoo
 cron
-
-# 🔐 Corregir permisos para evitar errores de escritura
-chown -R odoo:odoo /var/lib/odoo
 
 # 🧠 Construir argumentos de conexión a PostgreSQL
 DB_ARGS=()
@@ -38,7 +43,7 @@ check_config "db_port" "$PORT"
 check_config "db_user" "$USER"
 check_config "db_password" "$PASSWORD"
 
-# 🧠 Diagnóstico: mostrar bases existentes
+# 🔍 Diagnóstico: mostrar bases existentes
 echo "🔍 Listando bases de datos existentes..."
 export PGPASSWORD="$PASSWORD"
 DB_LIST=$(psql -h "$HOST" -U "$USER" -tAc "SELECT datname FROM pg_database WHERE datistemplate = false")
@@ -67,4 +72,4 @@ case "$1" in
         exec "$@"
 esac
 
-exit 1
+exit 

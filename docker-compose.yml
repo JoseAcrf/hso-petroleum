@@ -18,7 +18,7 @@ services:
     environment:
       - HOST=petroleumdb
       - USER=odoo
-      - ODOO_DB_PASSWORD=odoo
+      - ODOO_DB_PASSWORD=odoo072025
     command: ["/entrypoint.sh"]
 
   hsodb:
@@ -28,7 +28,7 @@ services:
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+      - POSTGRES_PASSWORD=odoo072025
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - db-data-2:/var/lib/postgresql/data

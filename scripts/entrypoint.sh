@@ -3,7 +3,7 @@
 DB_NAME="logisticdb"
 DB_HOST="logisticdb"
 DB_USER="odoo"
-DB_PASS="odoo"  # valor fijo para evitar fallos si la variable no se define correctamente
+DB_PASS="odoo"
 
 export PGPASSWORD="$DB_PASS"
 
@@ -22,7 +22,14 @@ if [ "$EXISTS" != "1" ]; then
   echo "📥 Instalando módulo base..."
   odoo -i base -d "$DB_NAME"
 else
-  echo "🟢 Base '$DB_NAME' ya existe. No se requiere inicialización."
+  echo "🟢 Base '$DB_NAME' ya existe. Verificando si el módulo base está instalado..."
+  INSTALLED=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -tAc "SELECT state FROM ir_module_module WHERE name='base'")
+  if [ "$INSTALLED" != "installed" ]; then
+    echo "📥 Instalando módulo base..."
+    odoo -i base -d "$DB_NAME"
+  else
+    echo "✅ Módulo base ya está instalado."
+  fi
 fi
 
 echo "🚀 Iniciando Odoo con configuración desde /etc/odoo/odoo.conf..."

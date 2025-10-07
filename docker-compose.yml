@@ -25,8 +25,8 @@ services:
     image: postgres:16.0
     container_name: petroleumdb
     restart: unless-stopped
-  ports:
-    - "5433:5433"  # puerto PostgreSQL personalizado
+    ports:
+      -"5433:5433"  # puerto PostgreSQL personalizado
     environment:
       - POSTGRES_DB=postgres             # evita conflicto si ya existe "odoo"
       - POSTGRES_USER=odoo

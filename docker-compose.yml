@@ -20,7 +20,7 @@ services:
       - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
     command: >
       odoo
-      --db_host=hsodb --db_port=5432
+      --db_host=logisticdb --db_port=5432
       --db_user=odoo --db_password=${ODOO_DB_PASSWORD:-odoo}
       --db-filter=.*
       --logfile=/var/log/odoo/odoo.log

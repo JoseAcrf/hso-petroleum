@@ -12,9 +12,9 @@ services:
       - "8090:8095"   # puerto longpolling único
     volumes:
       - odoo-data-2:/var/lib/odoo
-      - /opt/odoo/hso-logistics/config2:/etc/odoo           # configuración específica de esta instancia
-      - /opt/odoo/hso-logistics/addonsv2/mt/extra-addons:/mnt/extra-addons    # módulos personalizados
-      - /opt/odoo/hso-logistics/scripts/entrypoint.sh:/entrypoint.sh # script de inicialización automática
+      - /opt/odoo/hso-petroleum/config2:/etc/odoo           # configuración específica de esta instancia
+      - /opt/odoo/hso-petroleum/addonsv2/mt/extra-addons:/mnt/extra-addons    # módulos personalizados
+      - /opt/odoo/hso-petroleum/scripts/entrypoint.sh:/entrypoint.sh # script de inicialización automática
     environment:
       - HOST=petroleumdb
       - USER=odoo

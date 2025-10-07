@@ -5,7 +5,7 @@ set -e
 : ${HOST:=${DB_PORT_5432_TCP_ADDR:='petroleumdb'}}
 : ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
 : ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
-: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo19@2024'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo072025'}}}
 
 # 🧠 Crear usuario odoo si no existe
 if ! id -u odoo >/dev/null 2>&1; then

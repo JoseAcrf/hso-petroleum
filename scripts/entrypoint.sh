@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DB_HOST="petroleum_db"
+DB_HOST="petroleumdb"
 DB_USER="odoo"
 DB_PASS="odoo"
 

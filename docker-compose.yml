@@ -18,7 +18,7 @@ services:
     environment:
       - HOST=logisticdb
       - USER=odoo
-      - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+      - ODOO_DB_PASSWORD=odoo
     command: ["/entrypoint.sh"]
 
   hsodb:

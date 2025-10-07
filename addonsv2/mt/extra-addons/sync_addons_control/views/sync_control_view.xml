@@ -1,0 +1,25 @@
+<odoo>
+  <record id="view_sync_control_form" model="ir.ui.view">
+    <field name="name">sync.control.form</field>
+    <field name="model">sync.control</field>
+    <field name="arch" type="xml">
+      <form string="Sincronizador de Módulos">
+        <sheet>
+          <group>
+            <button name="sync_modules" type="object" string="🔄 Sincronizar desde GitHub" class="btn-primary"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_sync_control" model="ir.actions.act_window">
+    <field name="name">Sincronizador</field>
+    <field name="res_model">sync.control</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <menuitem id="menu_sync_control_root" name="Sincronizador" sequence="10"/>
+  <menuitem id="menu_sync_control" name="Control" parent="menu_sync_control_root" action="action_sync_control"/>
+</odoo>

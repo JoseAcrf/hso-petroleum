@@ -7,7 +7,7 @@ DB_PASS="odoo"
 export PGPASSWORD="$DB_PASS"
 
 echo "⏳ Esperando que PostgreSQL esté disponible..."
-until pg_isready -h "$DB_HOST" -p 5433 -U "$DB_USER" > /dev/null 2>&1; do
+until pg_isready -h "$DB_HOST" -p 5432 -U "$DB_USER" > /dev/null 2>&1; do
   echo "🔄 Esperando conexión con $DB_HOST..."
   sleep 2
 done

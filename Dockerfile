@@ -4,8 +4,12 @@ MAINTAINER Odoo S.A. <info@odoo.com>
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
 # Generate locale C.UTF-8 for postgres and general locale data
+RUN apt-get update && apt-get install -y locales \
+  && locale-gen en_US.UTF-8 \
+  && update-locale LANG=en_US.UTF-8
 ENV LANG en_US.UTF-8
-
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 # Retrieve the target architecture to install the correct wkhtmltopdf package
 ARG TARGETARCH
 

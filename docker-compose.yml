@@ -3,27 +3,27 @@ version: "3.1"
 services:
   hso-web:
     image: odoo:19.0
-    container_name: hso_logistic
+    container_name: hso_petroleum
     restart: unless-stopped
     depends_on:
       - hsodb
     ports:
-      - "8055:8069"   # puerto web único
-      - "8056:8072"   # puerto longpolling único
+      - "8080:8085"   # puerto web único
+      - "8090:8095"   # puerto longpolling único
     volumes:
       - odoo-data-2:/var/lib/odoo
       - /opt/odoo/hso-logistics/config2:/etc/odoo           # configuración específica de esta instancia
       - /opt/odoo/hso-logistics/addonsv2/mt/extra-addons:/mnt/extra-addons    # módulos personalizados
       - /opt/odoo/hso-logistics/scripts/entrypoint.sh:/entrypoint.sh # script de inicialización automática
     environment:
-      - HOST=logisticdb
+      - HOST=petroleumdb
       - USER=odoo
       - ODOO_DB_PASSWORD=odoo
     command: ["/entrypoint.sh"]
 
   hsodb:
     image: postgres:16.0
-    container_name: logisticdb
+    container_name: petroleumdb
     restart: unless-stopped
     environment:
       - POSTGRES_DB=postgres             # evita conflicto si ya existe "odoo"

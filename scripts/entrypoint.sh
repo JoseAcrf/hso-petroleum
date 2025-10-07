@@ -1,19 +1,47 @@
 #!/bin/bash
+set -e
 
-DB_HOST="petroleumdb"
-DB_USER="odoo"
-DB_PASS="odoo"
+# 🧠 Variables de entorno para PostgreSQL
+: ${HOST:=${DB_PORT_5432_TCP_ADDR:='petroleumdb'}}
+: ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
+: ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo'}}}
 
-export PGPASSWORD="$DB_PASS"
+# 📦 Instalar dependencias Python
+pip3 install -r /etc/odoo/requirements.txt
 
-echo "⏳ Esperando que PostgreSQL esté disponible..."
-until pg_isready -h "$DB_HOST" -p 5432 -U "$DB_USER" > /dev/null 2>&1; do
-  echo "🔄 Esperando conexión con $DB_HOST..."
-  sleep 2
-done
+# 🔁 Instalar logrotate si no está presente
+if ! dpkg -l | grep -q logrotate; then
+    apt-get update && apt-get install -y logrotate
+fi
 
+# 📁 Configurar logrotate
+cp /etc/odoo/logrotate /etc/logrotate.d/odoo
+cron
+
+# 🔐 Corregir permisos para evitar errores de escritura
+chown -R odoo:odoo /var/lib/odoo
+
+# 🧠 Construir argumentos de conexión a PostgreSQL
+DB_ARGS=()
+function check_config() {
+    param="$1"
+    value="$2"
+    if grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_RC" ; then       
+        value=$(grep -E "^\s*\b${param}\b\s*=" "$ODOO_RC" |cut -d " " -f3|sed 's/["\n\r]//g')
+    fi;
+    DB_ARGS+=("--${param}")
+    DB_ARGS+=("${value}")
+}
+check_config "db_host" "$HOST"
+check_config "db_port" "$PORT"
+check_config "db_user" "$USER"
+check_config "db_password" "$PASSWORD"
+
+# 🧠 Diagnóstico: mostrar bases existentes
 echo "🔍 Listando bases de datos existentes..."
-DB_LIST=$(psql -h "$DB_HOST" -U "$DB_USER" -tAc "SELECT datname FROM pg_database WHERE datistemplate = false")
+export PGPASSWORD="$PASSWORD"
+DB_LIST=$(psql -h "$HOST" -U "$USER" -tAc "SELECT datname FROM pg_database WHERE datistemplate = false")
 
 if [ -z "$DB_LIST" ]; then
   echo "⚠️ No hay bases de datos disponibles. Mostrando pantalla de bienvenida..."
@@ -22,5 +50,21 @@ else
   echo "$DB_LIST"
 fi
 
-echo "🚀 Iniciando Odoo sin forzar creación de base..."
-exec odoo
+# 🚀 Lanzar Odoo como usuario correcto
+case "$1" in
+    -- | odoo)
+        shift
+        if [[ "$1" == "scaffold" ]] ; then
+            exec su -s /bin/bash odoo -c "odoo $*"
+        else
+            su -s /bin/bash odoo -c "wait-for-psql.py ${DB_ARGS[@]} --timeout=30 && odoo $* ${DB_ARGS[@]}"
+        fi
+        ;;
+    -*)
+        su -s /bin/bash odoo -c "wait-for-psql.py ${DB_ARGS[@]} --timeout=30 && odoo $* ${DB_ARGS[@]}"
+        ;;
+    *)
+        exec "$@"
+esac
+
+exit 1

@@ -3,7 +3,7 @@
 DB_NAME="logisticdb"
 DB_HOST="logisticdb"
 DB_USER="odoo"
-DB_PASS="odoo"
+DB_PASS="${ODOO_DB_PASSWORD:-odoo}"
 
 echo "⏳ Esperando que PostgreSQL esté disponible..."
 until pg_isready -h $DB_HOST -p 5432 -U $DB_USER; do

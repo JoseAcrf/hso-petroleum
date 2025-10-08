@@ -1,21 +1,18 @@
 #!/bin/bash
+
 set -e
 
-# 🧠 Variables de entorno para PostgreSQL
-HOST="petroleumdb"
-PORT="5432"
-USER="odoo"
-PASSWORD="odoo072025"
-
-# 🔐 Crear usuario odoo si no existe
-if ! id -u odoo >/dev/null 2>&1; then
-    useradd -m -d /var/lib/odoo -s /bin/bash odoo
+if [ -v PASSWORD_FILE ]; then
+    PASSWORD="$(< $PASSWORD_FILE)"
 fi
 
-# 🔐 Corregir permisos para evitar errores de escritura
-chown -R odoo:odoo /var/lib/odoo
+# set the postgres database host, port, user and password according to the environment
+# and pass them as arguments to the odoo process if not present in the config file
+: ${HOST:=${DB_PORT_5432_TCP_ADDR:='db'}}
+: ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
+: ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo'}}}
 
-# 🧠 Construir argumentos de conexión a PostgreSQL desde odoo.conf
 DB_ARGS=()
 function check_config() {
     param="$1"
@@ -31,17 +28,22 @@ check_config "db_port" "$PORT"
 check_config "db_user" "$USER"
 check_config "db_password" "$PASSWORD"
 
-# 🔍 Diagnóstico: mostrar bases existentes
-echo "🔍 Listando bases de datos existentes..."
-export PGPASSWORD="$PASSWORD"
-DB_LIST=$(psql -h "$HOST" -U "$USER" -tAc "SELECT datname FROM pg_database WHERE datistemplate = false")
+case "$1" in
+    -- | odoo)
+        shift
+        if [[ "$1" == "scaffold" ]] ; then
+            exec odoo "$@"
+        else
+            wait-for-psql.py ${DB_ARGS[@]} --timeout=30
+            exec odoo "$@" "${DB_ARGS[@]}"
+        fi
+        ;;
+    -*)
+        wait-for-psql.py ${DB_ARGS[@]} --timeout=30
+        exec odoo "$@" "${DB_ARGS[@]}"
+        ;;
+    *)
+        exec "$@"
+esac
 
-if [ -z "$DB_LIST" ]; then
-  echo "⚠️ No hay bases de datos disponibles. Mostrando pantalla de bienvenida..."
-else
-  echo "🟢 Bases existentes:"
-  echo "$DB_LIST"
-fi
-
-# 🚀 Lanzar Odoo como usuario correcto
-exec su -s /bin/bash odoo -c "odoo ${DB_ARGS[@]}"
+exit 1

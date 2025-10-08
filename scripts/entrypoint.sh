@@ -56,8 +56,11 @@ case "$1" in
         exec odoo "$@" "${DB_ARGS[@]}"
         ;;
     *)
+        if [ -z "$1" ]; then
+            echo "❌ No se recibió ningún comando. Abortando."
+            exit 1
+        fi
+        echo "✅ Ejecutando comando directo: $@"
         exec "$@"
         ;;
 esac
-
-exit 1

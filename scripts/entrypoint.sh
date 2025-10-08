@@ -19,6 +19,14 @@ echo "✅ Usando archivo de configuración: $CONFIG_FILE"
 
 DB_ARGS=(--db_host "$HOST" --db_port "$PORT" --db_user "$USER" --db_password "$PASSWORD")
 
+echo "⏳ Esperando a que PostgreSQL esté disponible en $HOST:$PORT..."
+python3 /opt/odoo/wait-for-psql.py \
+  --db_host="$HOST" \
+  --db_port="$PORT" \
+  --db_user="$USER" \
+  --db_password="$PASSWORD" \
+  --timeout=30
+
 echo "🔍 Verificando si la base '$DBNAME' existe en PostgreSQL..."
 
 db_exists=$(psql "postgresql://$USER:$PASSWORD@$HOST:$PORT/postgres" -tAc "SELECT 1 FROM pg_database WHERE datname = '$DBNAME'" || echo "0")
@@ -30,14 +38,11 @@ if [ "$db_exists" = "1" ]; then
 
     if [ "$psql_check" = "1" ]; then
         echo "✅ Base '$DBNAME' ya contiene módulos. Lanzando Odoo..."
-        exec odoo "${DB_ARGS[@]}" --config="$CONFIG_FILE"
     else
         echo "⚠️ Base '$DBNAME' existe pero no tiene módulos. Mostrando wizard sin inicializar."
-        exec odoo "${DB_ARGS[@]}" --config="$CONFIG_FILE"
     fi
 else
     echo "🧭 Base '$DBNAME' no existe. Mostrando wizard de creación..."
-    exec odoo "${DB_ARGS[@]}" --config="$CONFIG_FILE"
 fi
 
 echo "🚀 Lanzando Odoo..."

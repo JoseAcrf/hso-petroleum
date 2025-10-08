@@ -49,5 +49,5 @@ if [ "$db_exists" = "1" ]; then
     fi
 else
     echo "La base '$DBNAME' no existe. Mostrando wizard de creación..."
-    exec odoo "${DB_ARGS[@]}" --config="$CONFIG_FILE"
+    exec odoo --config="$CONFIG_FILE"
 fi

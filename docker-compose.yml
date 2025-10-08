@@ -15,7 +15,7 @@ services:
       - /opt/odoo/hso-petroleum/config2/odoo.conf:/opt/odoo/odoo.conf
       - /opt/odoo/hso-petroleum/addonsv2/mt/extra-addons:/mnt/extra-addons
       - /opt/odoo/hso-petroleum/scripts/entrypoint.sh:/entrypoint.sh
-      - /opt/odoo/hso-petroleum/scripts/wait-for-psql.py:/opt/odoo/wait-for-psql.py
+      - /opt/odoo/hso-petroleum/scripts/wait-for-psql.py:/wait-for-psql.py
     environment:
       HOST: hsodb
       USER: odoo

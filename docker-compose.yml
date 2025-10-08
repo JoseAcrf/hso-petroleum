@@ -18,7 +18,7 @@ services:
       - /opt/odoo/hso-petroleum/scripts/wait-for-psql.py:/wait-for-psql.py
     environment:
       HOST: hsodb
-      USER: odoo
+      USER: null
       PASSWORD: odoo
       ODOO_RC: /opt/odoo/odoo.conf
     entrypoint: ["/entrypoint.sh"]

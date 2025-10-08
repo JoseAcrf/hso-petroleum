@@ -21,7 +21,7 @@ services:
       USER: odoo
       PASSWORD: odoo
       ODOO_RC: /opt/odoo/odoo.conf
-    command: ["odoo"]
+    entrypoint: ["/entrypoint.sh"]
 
   hsodb:
     image: postgres:16.0

@@ -3,7 +3,7 @@ set -e
 
 echo "🔧 Entrando al entrypoint..."
 
-# Validar archivo de configuración
+# 📁 Validar archivo de configuración
 CONFIG_FILE="${ODOO_RC:-/opt/odoo/odoo.conf}"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "❌ Archivo de configuración no encontrado: $CONFIG_FILE"
@@ -12,7 +12,7 @@ fi
 
 echo "✅ Usando archivo de configuración: $CONFIG_FILE"
 
-# Variables de entorno
+# 🔐 Variables de entorno
 : ${HOST:=${DB_PORT_5432_TCP_ADDR:='hsodb'}}
 : ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
 : ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
@@ -21,9 +21,9 @@ echo "✅ Usando archivo de configuración: $CONFIG_FILE"
 
 DB_ARGS=(--db_host "$HOST" --db_port "$PORT" --db_user "$USER" --db_password "$PASSWORD")
 
-# Esperar a que PostgreSQL esté disponible usando script local
+# ⏳ Esperar a que PostgreSQL esté disponible usando script local
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "⏳ Esperando a que PostgreSQL esté disponible en $HOST:$PORT..."
-SCRIPT_DIR="$(dirname "$0")"
 python3 "$SCRIPT_DIR/wait-for-psql.py" \
   --db_host="$HOST" \
   --db_port="$PORT" \
@@ -31,7 +31,7 @@ python3 "$SCRIPT_DIR/wait-for-psql.py" \
   --db_password="$PASSWORD" \
   --timeout=30
 
-# Verificar si la base existe
+# 🔍 Verificar si la base existe
 echo "🔍 Verificando si la base '$DBNAME' existe en PostgreSQL..."
 db_exists=$(psql "postgresql://$USER:$PASSWORD@$HOST:$PORT/postgres" -tAc "SELECT 1 FROM pg_database WHERE datname = '$DBNAME'" || echo "0")
 

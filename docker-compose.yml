@@ -28,7 +28,6 @@ services:
     container_name: petroleumdb
     restart: unless-stopped
     environment:
-      POSTGRES_DB: odoo
       POSTGRES_USER: odoo
       POSTGRES_PASSWORD: odoo
       PGDATA: /var/lib/postgresql/data/pgdata

@@ -17,9 +17,10 @@ services:
       - /opt/odoo/hso-petroleum/scripts/entrypoint.sh:/entrypoint.sh
       - /opt/odoo/hso-petroleum/scripts/wait-for-psql.py:/opt/odoo/wait-for-psql.py
     environment:
-      - HOST=petroleumdb
-      - USER=odoo
-      - ODOO_DB_PASSWORD=odoo072025
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+      ODOO_RC: /opt/odoo/odoo.conf
     command: ["/entrypoint.sh"]
 
   hsodb:
@@ -27,10 +28,10 @@ services:
     container_name: petroleumdb
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=odoo072025
-      - PGDATA=/var/lib/postgresql/data/pgdata
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - db-data-2:/var/lib/postgresql/data
 

@@ -3,6 +3,7 @@ set -e
 
 echo "🔧 Entrando al entrypoint..."
 
+# Validar archivo de configuración
 CONFIG_FILE="${ODOO_RC:-/opt/odoo/odoo.conf}"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "❌ Archivo de configuración no encontrado: $CONFIG_FILE"
@@ -11,6 +12,7 @@ fi
 
 echo "✅ Usando archivo de configuración: $CONFIG_FILE"
 
+# Variables de entorno
 : ${HOST:=${DB_PORT_5432_TCP_ADDR:='hsodb'}}
 : ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
 : ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
@@ -19,15 +21,22 @@ echo "✅ Usando archivo de configuración: $CONFIG_FILE"
 
 DB_ARGS=(--db_host "$HOST" --db_port "$PORT" --db_user "$USER" --db_password "$PASSWORD")
 
-echo "🔧 Verificando si la base '$DBNAME' está inicializada..."
+echo "🔧 Verificando si la base '$DBNAME' existe..."
 
-psql_check=$(psql "postgresql://$USER:$PASSWORD@$HOST:$PORT/$DBNAME" -tAc "SELECT 1 FROM pg_class WHERE relname = 'ir_module_module'" || echo "0")
+db_exists=$(psql "postgresql://$USER:$PASSWORD@$HOST:$PORT/postgres" -tAc "SELECT 1 FROM pg_database WHERE datname = '$DBNAME'" || echo "0")
 
-if [ "$psql_check" != "1" ]; then
-    echo "⚙️ Base '$DBNAME' detectada sin módulos. Inicializando 'base'..."
-    odoo -i base -d "$DBNAME" --config="$CONFIG_FILE" "${DB_ARGS[@]}" --without-demo=all
+if [ "$db_exists" = "1" ]; then
+    echo "✅ Base '$DBNAME' existe. Verificando si está inicializada..."
+    psql_check=$(psql "postgresql://$USER:$PASSWORD@$HOST:$PORT/$DBNAME" -tAc "SELECT 1 FROM pg_class WHERE relname = 'ir_module_module'" || echo "0")
+
+    if [ "$psql_check" != "1" ]; then
+        echo "⚙️ Base '$DBNAME' detectada sin módulos. Inicializando 'base'..."
+        odoo -i base -d "$DBNAME" --config="$CONFIG_FILE" "${DB_ARGS[@]}" --without-demo=all
+    else
+        echo "✅ Base '$DBNAME' ya contiene módulos. Continuando..."
+    fi
 else
-    echo "✅ Base '$DBNAME' ya contiene módulos. Continuando..."
+    echo "🧭 Base '$DBNAME' no existe. Mostrando wizard de creación..."
 fi
 
 echo "🚀 Lanzando Odoo..."
